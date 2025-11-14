@@ -1,17 +1,116 @@
-research_task:
+research_technology:
   description: >
-    Conduct a thorough research about {topic}
-    Make sure you find any interesting and relevant information given
-    the current year is {current_year}.
+    Research {technology} thoroughly using web search. Your research should cover:
+    
+    1. Official documentation and description
+    2. Real-world use cases and companies using it
+    3. Recent articles, blog posts, and discussions (from the last 6 months)
+    4. Comparisons with similar technologies/alternatives
+    5. General community sentiment and adoption trends
+    
+    Search for terms like:
+    - "{technology} documentation"
+    - "{technology} use cases"
+    - "{technology} vs alternatives"
+    - "{technology} reviews 2025"
+    - "companies using {technology}"
+    
+    Provide a comprehensive summary with specific examples and sources.
   expected_output: >
-    A list with 10 bullet points of the most relevant information about {topic}
-  agent: researcher
+    A detailed research report containing:
+    - Technology description and main features
+    - Key use cases with real examples
+    - Companies/projects using it
+    - Comparison with 2-3 main alternatives
+    - Recent developments and trends
+    - Quality assessment of documentation
+  agent: technology_researcher
 
-reporting_task:
+analyze_github_health:
   description: >
-    Review the context you got and expand each topic into a full section for a report.
-    Make sure the report is detailed and contains any and all relevant information.
+    Analyze the GitHub repository for {technology}. You need to find the main 
+    repository first (search for "{technology} github" if needed), then analyze:
+    
+    1. Repository metrics (stars, forks, watchers)
+    2. Commit activity and frequency
+    3. Issue management (open vs. closed ratio, response time)
+    4. Number and activity of contributors
+    5. Release frequency and versioning
+    6. License type
+    7. Last update/push date
+    
+    The repository format should be "owner/repo" (e.g., "facebook/react").
+    
+    Provide a health score (1-10) and clear interpretation of the metrics.
   expected_output: >
-    A fully fledged report with the main topics, each with a full section of information.
-    Formatted as markdown without '```'
-  agent: reporting_analyst
+    A GitHub health analysis report containing:
+    - Repository URL and basic stats
+    - Activity metrics with interpretation
+    - Health score (1-10) with justification
+    - Red flags or positive signals identified
+    - Assessment of project sustainability
+  agent: github_analyst
+
+assess_risks:
+  description: >
+    Research and identify potential risks and challenges with adopting {technology}. 
+    Use web search to find:
+    
+    1. Common issues, bugs, or limitations
+    2. Breaking changes in recent versions
+    3. Learning curve and complexity
+    4. Integration challenges with other technologies
+    5. Performance considerations
+    6. Security concerns (if any)
+    7. Community support quality (forums, Discord, Stack Overflow)
+    8. Long-term viability concerns
+    
+    Search for terms like:
+    - "{technology} problems"
+    - "{technology} issues"
+    - "{technology} limitations"
+    - "{technology} learning curve"
+    - "{technology} migration challenges"
+    
+    Be thorough but balanced. Include both risks and mitigations.
+  expected_output: >
+    A risk assessment report containing:
+    - List of identified risks (categorized by severity: High/Medium/Low)
+    - Common problems and their frequency
+    - Learning curve assessment
+    - Integration and compatibility concerns
+    - Community support evaluation
+    - Mitigation strategies for key risks
+  agent: risk_assessor
+
+generate_recommendation:
+  description: >
+    Based on all the research, GitHub analysis, and risk assessment, generate a 
+    comprehensive technology evaluation report for {technology}.
+    
+    Your report must include:
+    
+    1. Executive Summary with clear recommendation (ADOPT/TRIAL/ASSESS/HOLD)
+    2. Overall score (1-10)
+    3. Technology overview (from research)
+    4. GitHub health assessment (from analysis)
+    5. Risk summary (from risk assessment)
+    6. Pros and Cons list
+    7. Alternative technologies to consider
+    8. Final recommendation with reasoning
+    9. Additional resources and links
+    
+    Structure the report in clean Markdown format with clear sections and emojis 
+    for visual appeal. Be decisive but fair in your recommendation.
+    
+    After generating the report, save it using the File Writer tool with filename: 
+    "{technology}_evaluation_report.md"
+  expected_output: >
+    A complete markdown evaluation report saved to the filesystem containing all 
+    sections listed above. The report should be executive-ready, well-structured, 
+    and actionable. Confirm the file was saved successfully.
+  agent: decision_advisor
+  context:
+    - research_technology
+    - analyze_github_health
+    - assess_risks
