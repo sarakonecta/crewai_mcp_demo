@@ -36,12 +36,8 @@ class CrewaiMcpDemo():
                 self.tasks_config = yaml.safe_load(f) or {}
         except Exception:
             self.tasks_config = {}
-        # Configure LiteLLM
-        self.llm_config = {
-            "model": os.getenv("LITELLM_MODEL", "gemini-2.5-flash"),
-            "api_base": os.getenv("LITELLM_API_BASE"),
-            "api_key": os.getenv("LITELLM_API_KEY"),
-        }
+        # Configure LLM model (use LiteLLM proxy with openai/ prefix for non-OpenAI models)
+        self.llm_model = os.getenv("MODEL", "openai/gemini-2.5-flash")
         
         # Initialize tools
         self.google_search_tool = MCPGoogleSearchTool()
@@ -54,7 +50,7 @@ class CrewaiMcpDemo():
             config=self.agents_config['technology_researcher'],
             tools=[self.google_search_tool],
             verbose=True,
-            llm=self.llm_config
+            llm=self.llm_model
         )
     
     @agent
@@ -63,7 +59,7 @@ class CrewaiMcpDemo():
             config=self.agents_config['github_analyst'],
             tools=[self.github_tool, self.google_search_tool],
             verbose=True,
-            llm=self.llm_config
+            llm=self.llm_model
         )
     
     @agent
@@ -72,7 +68,7 @@ class CrewaiMcpDemo():
             config=self.agents_config['risk_assessor'],
             tools=[self.google_search_tool],
             verbose=True,
-            llm=self.llm_config
+            llm=self.llm_model
         )
     
     @agent
@@ -81,7 +77,7 @@ class CrewaiMcpDemo():
             config=self.agents_config['decision_advisor'],
             tools=[self.filesystem_tool],
             verbose=True,
-            llm=self.llm_config
+            llm=self.llm_model
         )
     
     @task

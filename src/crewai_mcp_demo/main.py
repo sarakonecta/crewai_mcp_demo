@@ -77,8 +77,8 @@ def test():
     try:
         # Provide the crew's LLM config as the evaluation LLM (if the API expects a model/config)
         crew_instance = CrewaiMcpDemo()
-        # Use environment or default model name as eval LLM identifier
-        eval_llm = os.getenv("LITELLM_MODEL", "gemini-2.5-flash")
+        # Use environment MODEL setting for evaluation LLM
+        eval_llm = os.getenv("MODEL", "openai/gemini-2.5-flash")
         crew_instance.crew().test(n_iterations=int(sys.argv[1]), eval_llm=eval_llm, inputs=inputs)
     except Exception as e:
         raise Exception(f"An error occurred while testing the crew: {e}")
