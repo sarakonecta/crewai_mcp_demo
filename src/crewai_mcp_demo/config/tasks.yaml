@@ -51,37 +51,6 @@ analyze_github_health:
     - Assessment of project sustainability
   agent: github_analyst
 
-assess_risks:
-  description: >
-    Research and identify potential risks and challenges with adopting {technology}. 
-    Use web search to find:
-    
-    1. Common issues, bugs, or limitations
-    2. Breaking changes in recent versions
-    3. Learning curve and complexity
-    4. Integration challenges with other technologies
-    5. Performance considerations
-    6. Security concerns (if any)
-    7. Community support quality (forums, Discord, Stack Overflow)
-    8. Long-term viability concerns
-    
-    Search for terms like:
-    - "{technology} problems"
-    - "{technology} issues"
-    - "{technology} limitations"
-    - "{technology} learning curve"
-    - "{technology} migration challenges"
-    
-    Be thorough but balanced. Include both risks and mitigations.
-  expected_output: >
-    A risk assessment report containing:
-    - List of identified risks (categorized by severity: High/Medium/Low)
-    - Common problems and their frequency
-    - Learning curve assessment
-    - Integration and compatibility concerns
-    - Community support evaluation
-    - Mitigation strategies for key risks
-  agent: risk_assessor
 
 generate_recommendation:
   description: >
@@ -94,11 +63,10 @@ generate_recommendation:
     2. Overall score (1-10)
     3. Technology overview (from research)
     4. GitHub health assessment (from analysis)
-    5. Risk summary (from risk assessment)
-    6. Pros and Cons list
-    7. Alternative technologies to consider
-    8. Final recommendation with reasoning
-    9. Additional resources and links
+    5. Pros and Cons list
+    6. Alternative technologies to consider
+    7. Final recommendation with reasoning
+    8. Additional resources and links
     
     Structure the report in clean Markdown format with clear sections and emojis 
     for visual appeal. Be decisive but fair in your recommendation.
@@ -113,4 +81,3 @@ generate_recommendation:
   context:
     - research_technology
     - analyze_github_health
-    - assess_risks

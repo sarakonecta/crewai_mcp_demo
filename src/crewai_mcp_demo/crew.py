@@ -21,6 +21,14 @@ class CrewaiMcpDemo():
     # runtime attributes created by the decorators; annotate to satisfy type checkers
     agents: Any = None
     tasks: Any = None
+
+    mcp_server_params = [
+        # Google Search MCP Server (Streamable HTTP)
+        {
+            "url": "https://kon-mcp-google-search-805102662749.us-central1.run.app/mcp",
+            "transport": "streamable-http",
+            "headers": {"Authorization": "c056b48160256702f4b54b3ddab4df8a7c0affbdef6b80a63d39f1534f6939f9"},
+        }]
     
     def __init__(self):
         """Initialize the crew with custom LLM configuration"""
@@ -48,7 +56,7 @@ class CrewaiMcpDemo():
     def technology_researcher(self) -> Agent:
         return Agent(
             config=self.agents_config['technology_researcher'],
-            tools=[self.google_search_tool],
+            tools=self.get_mcp_tools("search_web", "search_images"),
             verbose=True,
             llm=self.llm_model
         )
@@ -57,19 +65,11 @@ class CrewaiMcpDemo():
     def github_analyst(self) -> Agent:
         return Agent(
             config=self.agents_config['github_analyst'],
-            tools=[self.github_tool, self.google_search_tool],
+            tools=[self.github_tool, *self.get_mcp_tools("search_web", "search_images")],
             verbose=True,
             llm=self.llm_model
         )
-    
-    @agent
-    def risk_assessor(self) -> Agent:
-        return Agent(
-            config=self.agents_config['risk_assessor'],
-            tools=[self.google_search_tool],
-            verbose=True,
-            llm=self.llm_model
-        )
+
     
     @agent
     def decision_advisor(self) -> Agent:
@@ -98,14 +98,6 @@ class CrewaiMcpDemo():
             config=cfg,
         )
     
-    @task
-    def assess_risks(self) -> Task:
-        cfg = self.tasks_config.get('assess_risks', {})
-        return Task(
-            description=cfg.get('description', ''),
-            expected_output=cfg.get('expected_output', ''),
-            config=cfg,
-        )
     
     @task
     def generate_recommendation(self) -> Task:

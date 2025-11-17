@@ -36,7 +36,6 @@ class MCPGoogleSearchTool(BaseTool):
                 'num_results': 10
             }
             
-            # Try different endpoint paths (MCP standard and common variations)
             endpoints = [
                 f"{url}/tools/call",
                 f"{url}/call",

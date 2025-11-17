@@ -52,3 +52,50 @@ For support, questions, or feedback regarding the CrewaiMcpDemo Crew or crewAI.
 - [Chat with our docs](https://chatg.pt/DWjSBZn)
 
 Let's create wonders together with the power and simplicity of crewAI.
+
+## GitHub MCP Server (Official) — Cómo usarlo con esta demo
+
+Si tienes activado el "Official GitHub MCP Server" (por ejemplo en Docker Desktop Extensions), puedes hacer que `mcp_github.py` apunte a ese servidor en lugar de llamar directamente a `api.github.com`.
+
+- Qué hace el repositorio: la imagen oficial es `ghcr.io/github/github-mcp-server` (ver: https://github.com/github/github-mcp-server). Esta imagen actúa como un proxy/adapter para las APIs de GitHub y puede correr localmente en Docker.
+
+- Pasos rápidos para probarlo (ejemplo usando PowerShell):
+
+	1. Descargar y ejecutar la imagen Docker (ajusta la versión/puerto según la documentación de la imagen):
+
+```powershell
+docker pull ghcr.io/github/github-mcp-server:latest
+docker run --rm -p 8080:8080 ghcr.io/github/github-mcp-server:latest
+```
+
+	2. Configurar las variables de entorno para que la herramienta use el MCP local (ejemplo):
+
+```powershell
+#$env:GITHUB_API_BASE debe apuntar a la URL base del MCP (ajusta el puerto/path si corresponde)
+$env:GITHUB_API_BASE = 'http://localhost:8080'
+#Si necesitas autenticar, pon tu token de GitHub (o el método que requiera tu MCP)
+$env:GITHUB_TOKEN = 'ghp_xxxYOURTOKENxxx'
+```
+
+	3. Verificar que el MCP responde (opcional):
+
+```powershell
+Invoke-RestMethod -Uri "$env:GITHUB_API_BASE/repos/octocat/hello-world" -Method Get
+```
+
+	4. Ejecutar la demo (no interactiva) p. ej. para analizar un repositorio:
+
+```powershell
+python -m crewai_mcp_demo.main "facebook/react"
+# o usar el CLI del proyecto si lo prefieres:
+crewai run
+```
+
+- Notas útiles:
+	- `mcp_github.py` en este repo ahora puede usar `GITHUB_API_BASE` (por defecto sigue siendo `https://api.github.com`). Ajusta esta variable para apuntar a tu MCP local.
+	- Si el MCP exige rutas o cabeceras adicionales, es posible actualizar `mcp_github.py` para enviar los encabezados necesarios. Si quieres, puedo adaptar el cliente para un flujo de autenticación específico del MCP.
+	- Si no quieres ejecutar Docker, también puedes usar la extensión de Docker Desktop (si ya la activaste) y arrancar el MCP desde ahí — revisa la URL que expone la extensión y usa esa URL en `GITHUB_API_BASE`.
+
+Si quieres, implemento además:
+- Detección automática del MCP local en puertos comunes y uso automático cuando esté activo.
+- Un script de prueba integrado que haga una llamada de verificación al iniciar.
