@@ -1,44 +1,60 @@
 #!/usr/bin/env python
 import sys
-import warnings
-
-from datetime import datetime
-
+import os
 from crewai_mcp_demo.crew import CrewaiMcpDemo
+from dotenv import load_dotenv
 
-warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
-
-# This main file is intended to be a way for you to run your
-# crew locally, so refrain from adding unnecessary logic into this file.
-# Replace with inputs you want to test with, it will automatically
-# interpolate any tasks and agents information
+# Load environment variables
+load_dotenv()
 
 def run():
     """
-    Run the crew.
+    Run the crew for technology stack validation.
     """
+    print("\n" + "="*60)
+    print("🚀 TECH STACK VALIDATOR - CrewAI MCP Demo")
+    print("="*60 + "\n")
+    
+    # Get technology to evaluate
+    if len(sys.argv) > 1:
+        technology = " ".join(sys.argv[1:])
+    else:
+        technology = input("Enter the technology to evaluate (e.g., 'Supabase', 'FastAPI'): ").strip()
+    
+    if not technology:
+        print("❌ Error: No technology specified.")
+        return
+    
+    print(f"\n🔍 Evaluating: {technology}")
+    print("-" * 60 + "\n")
+    
     inputs = {
-        'topic': 'AI LLMs',
-        'current_year': str(datetime.now().year)
+        'technology': technology
     }
-
+    
     try:
-        CrewaiMcpDemo().crew().kickoff(inputs=inputs)
+        # Initialize and run the crew
+        crew_instance = CrewaiMcpDemo()
+        result = crew_instance.crew().kickoff(inputs=inputs)
+        
+        print("\n" + "="*60)
+        print("✅ EVALUATION COMPLETED")
+        print("="*60)
+        print(f"\n{result}\n")
+        
     except Exception as e:
-        raise Exception(f"An error occurred while running the crew: {e}")
-
+        print(f"\n❌ Error during evaluation: {str(e)}\n")
+        raise
 
 def train():
     """
     Train the crew for a given number of iterations.
     """
     inputs = {
-        "topic": "AI LLMs",
-        'current_year': str(datetime.now().year)
+        "technology": "FastAPI"  # Default for training
     }
     try:
         CrewaiMcpDemo().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
-
     except Exception as e:
         raise Exception(f"An error occurred while training the crew: {e}")
 
@@ -48,7 +64,6 @@ def replay():
     """
     try:
         CrewaiMcpDemo().crew().replay(task_id=sys.argv[1])
-
     except Exception as e:
         raise Exception(f"An error occurred while replaying the crew: {e}")
 
@@ -57,38 +72,16 @@ def test():
     Test the crew execution and returns the results.
     """
     inputs = {
-        "topic": "AI LLMs",
-        "current_year": str(datetime.now().year)
+        "technology": "FastAPI"  # Default for testing
     }
-
     try:
-        CrewaiMcpDemo().crew().test(n_iterations=int(sys.argv[1]), eval_llm=sys.argv[2], inputs=inputs)
-
+        # Provide the crew's LLM config as the evaluation LLM (if the API expects a model/config)
+        crew_instance = CrewaiMcpDemo()
+        # Use environment or default model name as eval LLM identifier
+        eval_llm = os.getenv("LITELLM_MODEL", "gemini-2.5-flash")
+        crew_instance.crew().test(n_iterations=int(sys.argv[1]), eval_llm=eval_llm, inputs=inputs)
     except Exception as e:
         raise Exception(f"An error occurred while testing the crew: {e}")
 
-def run_with_trigger():
-    """
-    Run the crew with trigger payload.
-    """
-    import json
-
-    if len(sys.argv) < 2:
-        raise Exception("No trigger payload provided. Please provide JSON payload as argument.")
-
-    try:
-        trigger_payload = json.loads(sys.argv[1])
-    except json.JSONDecodeError:
-        raise Exception("Invalid JSON payload provided as argument")
-
-    inputs = {
-        "crewai_trigger_payload": trigger_payload,
-        "topic": "",
-        "current_year": ""
-    }
-
-    try:
-        result = CrewaiMcpDemo().crew().kickoff(inputs=inputs)
-        return result
-    except Exception as e:
-        raise Exception(f"An error occurred while running the crew with trigger: {e}")
+if __name__ == "__main__":
+    run()

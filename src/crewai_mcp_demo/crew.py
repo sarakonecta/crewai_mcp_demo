@@ -1,64 +1,131 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
-from crewai.agents.agent_builder.base_agent import BaseAgent
-from typing import List
-# If you want to run a snippet of code before or after the crew starts,
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
+import yaml
+from typing import Any
+from crewai_mcp_demo.tools.mcp_google_search import MCPGoogleSearchTool
+from crewai_mcp_demo.tools.mcp_github import MCPGitHubTool
+from crewai_mcp_demo.tools.mcp_filesystem import MCPFilesystemTool
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 @CrewBase
 class CrewaiMcpDemo():
-    """CrewaiMcpDemo crew"""
-
-    agents: List[BaseAgent]
-    tasks: List[Task]
-
-    # Learn more about YAML configuration files here:
-    # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-    # Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
+    """CrewaiMcpDemo crew for technology stack validation"""
     
-    # If you would like to add tools to your agents, you can learn more about it here:
-    # https://docs.crewai.com/concepts/agents#agent-tools
+    # paths to config files (relative to this package)
+    agents_config_path = os.path.join(os.path.dirname(__file__), "config", "agents.yaml")
+    tasks_config_path = os.path.join(os.path.dirname(__file__), "config", "tasks.yaml")
+    # runtime attributes created by the decorators; annotate to satisfy type checkers
+    agents: Any = None
+    tasks: Any = None
+    
+    def __init__(self):
+        """Initialize the crew with custom LLM configuration"""
+        # Load YAML configs for agents and tasks
+        try:
+            with open(self.agents_config_path, "r", encoding="utf-8") as f:
+                self.agents_config = yaml.safe_load(f) or {}
+        except Exception:
+            self.agents_config = {}
+
+        try:
+            with open(self.tasks_config_path, "r", encoding="utf-8") as f:
+                self.tasks_config = yaml.safe_load(f) or {}
+        except Exception:
+            self.tasks_config = {}
+        # Configure LiteLLM
+        self.llm_config = {
+            "model": os.getenv("LITELLM_MODEL", "gemini-2.5-flash"),
+            "api_base": os.getenv("LITELLM_API_BASE"),
+            "api_key": os.getenv("LITELLM_API_KEY"),
+        }
+        
+        # Initialize tools
+        self.google_search_tool = MCPGoogleSearchTool()
+        self.github_tool = MCPGitHubTool()
+        self.filesystem_tool = MCPFilesystemTool()
+    
     @agent
-    def researcher(self) -> Agent:
+    def technology_researcher(self) -> Agent:
         return Agent(
-            config=self.agents_config['researcher'], # type: ignore[index]
-            verbose=True
+            config=self.agents_config['technology_researcher'],
+            tools=[self.google_search_tool],
+            verbose=True,
+            llm=self.llm_config
         )
-
+    
     @agent
-    def reporting_analyst(self) -> Agent:
+    def github_analyst(self) -> Agent:
         return Agent(
-            config=self.agents_config['reporting_analyst'], # type: ignore[index]
-            verbose=True
+            config=self.agents_config['github_analyst'],
+            tools=[self.github_tool, self.google_search_tool],
+            verbose=True,
+            llm=self.llm_config
         )
-
-    # To learn more about structured task outputs,
-    # task dependencies, and task callbacks, check out the documentation:
-    # https://docs.crewai.com/concepts/tasks#overview-of-a-task
+    
+    @agent
+    def risk_assessor(self) -> Agent:
+        return Agent(
+            config=self.agents_config['risk_assessor'],
+            tools=[self.google_search_tool],
+            verbose=True,
+            llm=self.llm_config
+        )
+    
+    @agent
+    def decision_advisor(self) -> Agent:
+        return Agent(
+            config=self.agents_config['decision_advisor'],
+            tools=[self.filesystem_tool],
+            verbose=True,
+            llm=self.llm_config
+        )
+    
     @task
-    def research_task(self) -> Task:
+    def research_technology(self) -> Task:
+        cfg = self.tasks_config.get('research_technology', {})
         return Task(
-            config=self.tasks_config['research_task'], # type: ignore[index]
+            description=cfg.get('description', ''),
+            expected_output=cfg.get('expected_output', ''),
+            config=cfg,
         )
-
+    
     @task
-    def reporting_task(self) -> Task:
+    def analyze_github_health(self) -> Task:
+        cfg = self.tasks_config.get('analyze_github_health', {})
         return Task(
-            config=self.tasks_config['reporting_task'], # type: ignore[index]
-            output_file='report.md'
+            description=cfg.get('description', ''),
+            expected_output=cfg.get('expected_output', ''),
+            config=cfg,
         )
-
+    
+    @task
+    def assess_risks(self) -> Task:
+        cfg = self.tasks_config.get('assess_risks', {})
+        return Task(
+            description=cfg.get('description', ''),
+            expected_output=cfg.get('expected_output', ''),
+            config=cfg,
+        )
+    
+    @task
+    def generate_recommendation(self) -> Task:
+        cfg = self.tasks_config.get('generate_recommendation', {})
+        return Task(
+            description=cfg.get('description', ''),
+            expected_output=cfg.get('expected_output', ''),
+            config=cfg,
+        )
+    
     @crew
     def crew(self) -> Crew:
         """Creates the CrewaiMcpDemo crew"""
-        # To learn how to add knowledge sources to your crew, check out the documentation:
-        # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
-
         return Crew(
-            agents=self.agents, # Automatically created by the @agent decorator
-            tasks=self.tasks, # Automatically created by the @task decorator
+            agents=self.agents,  # Automatically created by @agent decorator
+            tasks=self.tasks,    # Automatically created by @task decorator
             process=Process.sequential,
             verbose=True,
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
         )
