@@ -28,34 +28,35 @@ research_technology:
 
 analyze_github_health:
   description: >
-    Analyze the GitHub repository for {technology}. You need to find the main 
-    repository first (search for "{technology} github" if needed), then analyze:
+    Analyze the GitHub repository for {technology}. 
     
-    1. Repository metrics (stars, forks, watchers)
-    2. Commit activity and frequency
-    3. Issue management (open vs. closed ratio, response time)
-    4. Number and activity of contributors
-    5. Release frequency and versioning
-    6. License type
-    7. Last update/push date
+    IMPORTANT: First, find the exact repository name in "owner/repo" format.
+    For example: "facebook/react", "tiangolo/fastapi", "vercel/next.js"
     
-    The repository format should be "owner/repo" (e.g., "facebook/react").
+    Once you have the repository name, analyze it efficiently:
+    1. Use list_commits with owner, repo, and **perPage=10** (only 10 recent commits)
+    2. Use list_issues with owner, repo, state="OPEN", and **perPage=10** (only 10 open issues)
+    3. Use list_issues with owner, repo, state="CLOSED", and **perPage=10** (only 10 closed issues)
     
-    Provide a health score (1-10) and clear interpretation of the metrics.
+    Based on this sample, provide:
+    - Summary of recent commit activity
+    - Ratio of open vs closed issues (approximate)
+    - Health score from 1-10
+    - Brief assessment of project health
+    
+    Keep your analysis concise and focused on key metrics only.
   expected_output: >
-    A GitHub health analysis report containing:
-    - Repository URL and basic stats
-    - Activity metrics with interpretation
-    - Health score (1-10) with justification
-    - Red flags or positive signals identified
-    - Assessment of project sustainability
+    A concise GitHub health analysis (max 300 words) containing:
+    - Repository name (owner/repo)
+    - Recent commit activity summary
+    - Issue management summary (open/closed ratio)
+    - Health score (1-10) with brief justification
+    - One-sentence overall assessment
   agent: github_analyst
-
 
 generate_recommendation:
   description: >
-    Based on all the research, GitHub analysis, and risk assessment, generate a 
-    comprehensive technology evaluation report for {technology}.
+    Based on all the research and GitHub analysis, generate a comprehensive technology evaluation report for {technology}.
     
     Your report must include:
     
@@ -71,12 +72,11 @@ generate_recommendation:
     Structure the report in clean Markdown format with clear sections and emojis 
     for visual appeal. Be decisive but fair in your recommendation.
     
-    After generating the report, save it using the File Writer tool with filename: 
-    "{technology}_evaluation_report.md"
+    After generating the report, use the write_file tool to save it with:
+    - Path: "/C/Users/ssansalvador/Documents/Projects/tech_stack_reports/{technology}_evaluation_report.md"
+    - Content: The complete markdown report you generated
   expected_output: >
-    A complete markdown evaluation report saved to the filesystem containing all 
-    sections listed above. The report should be executive-ready, well-structured, 
-    and actionable. Confirm the file was saved successfully.
+    A complete markdown evaluation report saved to the filesystem containing all sections listed above. The report should be executive-ready, well-structured, and actionable. Confirm the file was saved successfully with the full path.
   agent: decision_advisor
   context:
     - research_technology

@@ -8,9 +8,6 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.tools import BaseTool
 
-from crewai_mcp_demo.tools.mcp_filesystem import MCPFilesystemTool
-from crewai_mcp_demo.tools.mcp_github import MCPGitHubTool
-
 load_dotenv()
 
 @CrewBase
@@ -23,14 +20,27 @@ class CrewaiMcpDemo():
 
     agents: Any = None
     tasks: Any = None
-
+    
     mcp_server_params = [
         # Google Search MCP Server (Streamable HTTP)
         {
-            "url": "https://kon-mcp-google-search-805102662749.us-central1.run.app/mcp",
+            "url": os.getenv("GOOGLE_SEARCH_MCP_URL"),
             "transport": "streamable-http",
-            "headers": {"Authorization": "c056b48160256702f4b54b3ddab4df8a7c0affbdef6b80a63d39f1534f6939f9"},
-        }]
+            "headers": {"Authorization": os.getenv("GOOGLE_SEARCH_MCP_KEY")},
+        },
+        # GitHub Official MCP via Docker Desktop Gateway (SSE)
+        {
+            "url": os.getenv("GITHUB_MCP_URL"),
+            "transport": "sse",
+            "headers": {"Authorization": os.getenv("MCP_KEY")}
+        },
+        # Filesystem MCP via Docker Desktop Gateway (SSE)
+        {
+            "url": os.getenv("FILESYSTEM_MCP_URL"),
+            "transport": "sse",
+            "headers": {"Authorization": os.getenv("MCP_KEY")}
+        }
+    ]
     
     def get_mcp_tools(self, *tool_names: str) -> list[BaseTool]:
         ...
@@ -49,12 +59,9 @@ class CrewaiMcpDemo():
                 self.tasks_config = yaml.safe_load(f) or {}
         except Exception:
             self.tasks_config = {}
+            
         # Configure LLM model (use LiteLLM proxy with openai/ prefix for non-OpenAI models)
         self.llm_model = os.getenv("MODEL", "openai/gemini-2.5-flash")
-        
-        # Initialize tools
-        self.github_tool = MCPGitHubTool()
-        self.filesystem_tool = MCPFilesystemTool()
     
     @agent
     def technology_researcher(self) -> Agent:
@@ -69,17 +76,16 @@ class CrewaiMcpDemo():
     def github_analyst(self) -> Agent:
         return Agent(
             config=self.agents_config['github_analyst'],
-            tools=[self.github_tool, *self.get_mcp_tools("search_web", "search_images")],
+            tools=self.get_mcp_tools("get_repository", "list_commits", "list_issues"),
             verbose=True,
             llm=self.llm_model
         )
-
     
     @agent
     def decision_advisor(self) -> Agent:
         return Agent(
             config=self.agents_config['decision_advisor'],
-            tools=[self.filesystem_tool],
+            tools=self.get_mcp_tools("write_file", "read_file"),
             verbose=True,
             llm=self.llm_model
         )
@@ -102,7 +108,6 @@ class CrewaiMcpDemo():
             config=cfg,
         )
     
-    
     @task
     def generate_recommendation(self) -> Task:
         cfg = self.tasks_config.get('generate_recommendation', {})
@@ -116,8 +121,8 @@ class CrewaiMcpDemo():
     def crew(self) -> Crew:
         """Creates the CrewaiMcpDemo crew"""
         return Crew(
-            agents=self.agents,  # Automatically created by @agent decorator
-            tasks=self.tasks,    # Automatically created by @task decorator
+            agents=self.agents,
+            tasks=self.tasks,
             process=Process.sequential,
             verbose=True,
         )
