@@ -22,7 +22,7 @@ class CrewaiMcpDemo():
     tasks: Any = None
     
     mcp_server_params = [
-        # Google Search MCP Server (Streamable HTTP)
+        # Google Search MCP Server
         {
             "url": os.getenv("GOOGLE_SEARCH_MCP_URL"),
             "transport": "streamable-http",
