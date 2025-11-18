@@ -51,20 +51,39 @@ Create or update the `.env` file in the project root with the following variable
 
 ```env
 # LiteLLM API Configuration
-OPENAI_API_BASE=
+OPENAI_API_BASE=your-api-base-here
 OPENAI_API_KEY=sk-your-api-key-here
-MODEL=
+MODEL=your-model-here
 
 # Google Search MCP Configuration
-GOOGLE_SEARCH_MCP_URL=
-GOOGLE_SEARCH_MCP_KEY=your-google-search-key
+GOOGLE_SEARCH_MCP_URL=your-google-search-mcp-url-here
+GOOGLE_SEARCH_MCP_KEY=your-google-search-key-here
 
 # GitHub Configuration
-GITHUB_TOKEN=ghp_your-github-token-here
+GITHUB_TOKEN=your-github-token-here
 
 # Output Directory (where reports will be saved)
 REPORTS_DIR=C:/Users/your-username/Documents/tech_stack_reports
+
+# GitHub MCP and Filesystem MCP (local Docker Desktop gateway)
+GITHUB_MCP_URL=http://localhost:3000/sse/github-official
+FILESYSTEM_MCP_URL=http://localhost:3000/sse/filesystem
+MCP_KEY=your-mcp-key-here
+
 ```
+
+> **IMPORTANT: About MCP_KEY**
+> 
+> The `MCP_KEY` value is **generated dynamically** each time you start the Docker MCP gateway. 
+> 
+> When you run `docker mcp gateway run --transport sse --port 3000`, a new Bearer token will appear in the terminal output. You **must copy this token** and update the `MCP_KEY` value in your `.env` file before running the crew.
+>
+> Example terminal output:
+> ```
+> MCP Gateway started on port 3000
+> Bearer token: Bearer 08ztlb3ipjr4q6qj6mjl4apv236uif3kdeeoo8nex9qjwilzt1
+> ```
+> Copy the entire Bearer token (including "Bearer ") and paste it as the `MCP_KEY` value.
 
 ## Running with Docker (MCP Servers)
 
@@ -73,26 +92,21 @@ This project uses MCP servers for enhanced functionality. To run the MCP servers
 ### 1. Start MCP Servers in Docker
 
 ```powershell
-# Open Docker Desktop and keep it running
-# Use Docker Desktop Extensions if available
-# Navigate to Docker Desktop > Extensions > GitHub MCP Server
-```
-
-### 2. Keep Docker Container Running
-
-To keep the Docker container running while you execute the crew, use the following approach:
-
-**Run in separate PowerShell terminal**
-```powershell
-# Start the MCP server in the background
+# Start the MCP gateway (this will generate a new MCP_KEY in the terminal)
 docker mcp gateway run --transport sse --port 3000
-
-# Execute your crew commands (see Running the Project section below)
-crewai run
-
-# When done, stop the container
-
 ```
+
+### 2. Update Your .env File
+
+**CRITICAL STEP**: After starting the Docker gateway, you'll see a Bearer token in the terminal. Copy this token and update your `.env` file:
+
+```env
+MCP_KEY=Bearer <the-token-shown-in-terminal>
+```
+
+### 3. Keep Docker Container Running
+
+Keep the terminal with the Docker gateway running while you execute the crew in a separate PowerShell window.
 
 ## Running the Project
 
@@ -152,9 +166,12 @@ mcp_server_params = [
 | `OPENAI_API_KEY` | API key for LLM access | `sk-xxxxxxxx` |
 | `MODEL` | LLM model to use | `openai/gemini-2.5-flash` |
 | `GOOGLE_SEARCH_MCP_URL` | Google Search MCP endpoint | `https://kon-mcp-google-search-...` |
-| `GOOGLE_SEARCH_MCP_KEY` | Google Search API key | `c056b48160256702f4...` |
+| `GOOGLE_SEARCH_MCP_KEY` | Google Search API key | `c056b48168956702f4...` |
 | `GITHUB_TOKEN` | GitHub Personal Access Token | `ghp_xxxxxxxx` |
 | `REPORTS_DIR` | Output directory for reports | `C:/Users/.../tech_stack_reports` |
+| `GITHUB_MCP_URL` | GitHub MCP SSE endpoint (local gateway) | `http://localhost:3000/sse/github-official` |
+| `FILESYSTEM_MCP_URL` | Filesystem MCP SSE endpoint (local gateway) | `http://localhost:3000/sse/filesystem` |
+| `MCP_KEY` | Authentication key for MCP endpoints (**regenerated each Docker session**) | `Bearer 08ztlb3ipjr4q6qj6mjl4apv...` |
 
 ## Troubleshooting
 
@@ -167,6 +184,12 @@ mcp_server_params = [
 - Verify Docker container is running: `docker ps`
 - Test connection: `curl http://localhost:3000/sse/github-official`
 - Check firewall/port availability (port 3000)
+- **Verify you've updated the `MCP_KEY` in `.env` with the token from the terminal**
+
+### Authentication Errors with MCP
+- **Most common issue**: The `MCP_KEY` in your `.env` file is outdated
+- Stop the Docker gateway, restart it, and copy the new Bearer token
+- Update `.env` with the new token before running the crew again
 
 ### API Errors
 - Verify all `.env` variables are set correctly
