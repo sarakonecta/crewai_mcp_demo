@@ -1,24 +1,26 @@
-from crewai import Agent, Crew, Process, Task
-from crewai.project import CrewBase, agent, crew, task
-import yaml
-from typing import Any
-from crewai_mcp_demo.tools.mcp_google_search import MCPGoogleSearchTool
-from crewai_mcp_demo.tools.mcp_github import MCPGitHubTool
-from crewai_mcp_demo.tools.mcp_filesystem import MCPFilesystemTool
 import os
+from typing import Any, List
+
+import yaml
 from dotenv import load_dotenv
 
-# Load environment variables
+from crewai import Agent, Crew, Process, Task
+from crewai.project import CrewBase, agent, crew, task
+from crewai.tools import BaseTool
+
+from crewai_mcp_demo.tools.mcp_filesystem import MCPFilesystemTool
+from crewai_mcp_demo.tools.mcp_github import MCPGitHubTool
+
 load_dotenv()
 
 @CrewBase
 class CrewaiMcpDemo():
     """CrewaiMcpDemo crew for technology stack validation"""
     
-    # paths to config files (relative to this package)
+    # paths to config files
     agents_config_path = os.path.join(os.path.dirname(__file__), "config", "agents.yaml")
     tasks_config_path = os.path.join(os.path.dirname(__file__), "config", "tasks.yaml")
-    # runtime attributes created by the decorators; annotate to satisfy type checkers
+
     agents: Any = None
     tasks: Any = None
 
@@ -30,6 +32,9 @@ class CrewaiMcpDemo():
             "headers": {"Authorization": "c056b48160256702f4b54b3ddab4df8a7c0affbdef6b80a63d39f1534f6939f9"},
         }]
     
+    def get_mcp_tools(self, *tool_names: str) -> list[BaseTool]:
+        ...
+
     def __init__(self):
         """Initialize the crew with custom LLM configuration"""
         # Load YAML configs for agents and tasks
@@ -48,7 +53,6 @@ class CrewaiMcpDemo():
         self.llm_model = os.getenv("MODEL", "openai/gemini-2.5-flash")
         
         # Initialize tools
-        self.google_search_tool = MCPGoogleSearchTool()
         self.github_tool = MCPGitHubTool()
         self.filesystem_tool = MCPFilesystemTool()
     
