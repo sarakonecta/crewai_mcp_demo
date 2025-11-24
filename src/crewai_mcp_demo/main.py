@@ -29,7 +29,7 @@ def run():
     print("-" * 60 + "\n")
     
     inputs = {
-        'technology': technology
+        'technology': technology  # ✅ CAMBIADO
     }
     
     try:
@@ -51,7 +51,7 @@ def train():
     Train the crew for a given number of iterations.
     """
     inputs = {
-        "technology": "FastAPI"  # Default for training
+        "technology": "FastAPI"
     }
     try:
         CrewaiMcpDemo().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
@@ -72,12 +72,10 @@ def test():
     Test the crew execution and returns the results.
     """
     inputs = {
-        "technology": "FastAPI"  # Default for testing
+        "technology": "FastAPI"
     }
     try:
-        # Provide the crew's LLM config as the evaluation LLM (if the API expects a model/config)
         crew_instance = CrewaiMcpDemo()
-        # Use environment MODEL setting for evaluation LLM
         eval_llm = os.getenv("MODEL", "openai/gemini-2.5-flash")
         crew_instance.crew().test(n_iterations=int(sys.argv[1]), eval_llm=eval_llm, inputs=inputs)
     except Exception as e:

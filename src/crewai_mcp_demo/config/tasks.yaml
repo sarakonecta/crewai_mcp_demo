@@ -56,27 +56,21 @@ analyze_github_health:
 
 generate_recommendation:
   description: >
-    Based on all the research and GitHub analysis, generate a comprehensive technology evaluation report for {technology}.
+    Based on the research and GitHub analysis, create a comprehensive technology adoption recommendation report.
     
-    Your report must include:
+    CRITICAL: You MUST save the report to: /mnt/reports/tech_recommendation_{technology}.md
+    Use the write_file tool with exactly this path format: /mnt/reports/filename.md
     
-    1. Executive Summary with clear recommendation (ADOPT/TRIAL/ASSESS/HOLD)
-    2. Overall score (1-10)
-    3. Technology overview (from research)
-    4. GitHub health assessment (from analysis)
-    5. Pros and Cons list
-    6. Alternative technologies to consider
-    7. Final recommendation with reasoning
-    8. Additional resources and links
+    The report should include:
+    1. Executive Summary
+    2. Technology Overview
+    3. Community Health Assessment
+    4. Risk Analysis
+    5. Final Recommendation (Adopt/Hold/Avoid)
     
-    Structure the report in clean Markdown format with clear sections and emojis 
-    for visual appeal. Be decisive but fair in your recommendation.
-    
-    After generating the report, use the write_file tool to save it with:
-    - Path: "/C/Users/ssansalvador/Documents/Projects/tech_stack_reports/{technology}_evaluation_report.md"
-    - Content: The complete markdown report you generated
   expected_output: >
-    A complete markdown evaluation report saved to the filesystem containing all sections listed above. The report should be executive-ready, well-structured, and actionable. Confirm the file was saved successfully with the full path.
+    A markdown report successfully saved to /mnt/reports/ directory
+    
   agent: decision_advisor
   context:
     - research_technology
