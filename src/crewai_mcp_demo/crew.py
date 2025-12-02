@@ -91,7 +91,7 @@ class CrewaiMcpDemo():
                         "run",
                         "-i",
                         "--rm",
-                        "-e", f"GITHUB_PERSONAL_ACCESS_TOKEN={os.getenv('GITHUB_TOKEN')}",
+                        "-e", f"GITHUB_PERSONAL_ACCESS_TOKEN={os.getenv('GITHUB_API_KEY')}",
                         "mcp/github"
                     ],
                     tool_filter=create_static_tool_filter(
