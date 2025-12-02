@@ -29,7 +29,7 @@ def run():
     print("-" * 60 + "\n")
     
     inputs = {
-        'technology': technology  # ✅ CAMBIADO
+        'technology': technology
     }
     
     try:
@@ -41,6 +41,17 @@ def run():
         print("✅ EVALUATION COMPLETED")
         print("="*60)
         print(f"\n{result}\n")
+        
+        # ✅ OPCIONAL: Guardar el resultado localmente si estás en desarrollo
+        if os.getenv("SAVE_LOCAL_REPORT", "false").lower() == "true":
+            reports_dir = os.getenv("REPORTS_DIR", "./reports")
+            os.makedirs(reports_dir, exist_ok=True)
+            report_path = os.path.join(reports_dir, f"tech_recommendation_{technology.replace(' ', '_')}.md")
+            
+            with open(report_path, "w", encoding="utf-8") as f:
+                f.write(str(result))
+            
+            print(f"💾 Report saved locally: {report_path}\n")
         
     except Exception as e:
         print(f"\n❌ Error during evaluation: {str(e)}\n")

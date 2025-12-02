@@ -1,5 +1,5 @@
 import os
-from typing import Any, List
+from typing import Any
 
 import yaml
 from dotenv import load_dotenv
@@ -54,9 +54,6 @@ class CrewaiMcpDemo():
         if not self.google_search_key:
             print("WARNING: GOOGLE_SEARCH_MCP_KEY not found. Google Search agent may not work.")
             self.google_search_key = ""
-        
-        # Get paths
-        self.reports_dir = os.getenv("REPORTS_DIR", r"C:\Users\ssansalvador\Documents\Projects\tech_stack_reports")
     
     @agent
     def technology_researcher(self) -> Agent:
@@ -84,7 +81,7 @@ class CrewaiMcpDemo():
         return Agent(
             config=self.agents_config['github_analyst'],
             mcps=[
-                # GitHub MCP via Docker Stdio (sin Gateway)
+                # GitHub MCP via Docker Stdio
                 MCPServerStdio(
                     command="docker",
                     args=[
@@ -107,36 +104,9 @@ class CrewaiMcpDemo():
     
     @agent
     def decision_advisor(self) -> Agent:
-        # Asegurar que la carpeta existe
-        reports_path = r"C:\Users\ssansalvador\Documents\Projects\tech_stack_reports"
-        os.makedirs(reports_path, exist_ok=True)
-        
-        # Convertir path de Windows a formato Docker
-        docker_path = reports_path.replace("\\", "/")
-        
-        print(f"📁 Filesystem mount: {reports_path}")
-        print(f"📁 Docker path: {docker_path}:/mnt/reports")
-        
+        # ✅ ELIMINADO: Todo el código de filesystem y Docker
         return Agent(
             config=self.agents_config['decision_advisor'],
-            mcps=[
-                # Filesystem MCP via Docker Stdio
-                MCPServerStdio(
-                    command="docker",
-                    args=[
-                        "run",
-                        "-i",
-                        "--rm",
-                        "-v", f"{docker_path}:/mnt/reports",
-                        "mcp/filesystem",
-                        "/mnt/reports"
-                    ],
-                    tool_filter=create_static_tool_filter(
-                        allowed_tool_names=["write_file", "read_file", "list_directory", "create_directory"]
-                    ),
-                    cache_tools_list=True,
-                ),
-            ],
             verbose=True,
             llm=self.llm_model,
             allow_delegation=False,
@@ -178,4 +148,3 @@ class CrewaiMcpDemo():
             process=Process.sequential,
             verbose=True,
         )
-    

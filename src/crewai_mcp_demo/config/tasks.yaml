@@ -56,20 +56,27 @@ analyze_github_health:
 
 generate_recommendation:
   description: >
-    Based on the research and GitHub analysis, create a comprehensive technology adoption recommendation report.
-    
-    CRITICAL: You MUST save the report to: /mnt/reports/tech_recommendation_{technology}.md
-    Use the write_file tool with exactly this path format: /mnt/reports/filename.md
+    Based on the research and GitHub analysis, create a comprehensive technology 
+    adoption recommendation report in markdown format.
     
     The report should include:
-    1. Executive Summary
-    2. Technology Overview
-    3. Community Health Assessment
-    4. Risk Analysis
-    5. Final Recommendation (Adopt/Hold/Avoid)
+    1. Executive Summary (2-3 paragraphs)
+    2. Technology Overview (key features and capabilities)
+    3. Community Health Assessment (based on GitHub analysis)
+    4. Strengths and Weaknesses
+    5. Risk Analysis (technical debt, vendor lock-in, learning curve)
+    6. Final Recommendation (Adopt/Hold/Avoid with clear reasoning)
+    
+    Format the report in clean markdown with proper headers, bullet points, and sections.
+    Make it executive-friendly but technically accurate.
     
   expected_output: >
-    A markdown report successfully saved to /mnt/reports/ directory
+    A complete markdown-formatted technology adoption report (500-800 words) with:
+    - Clear section headers
+    - Executive summary at the top
+    - Data-driven insights from research and GitHub analysis
+    - Concrete recommendation with justification
+    - Professional tone suitable for leadership review
     
   agent: decision_advisor
   context:
