@@ -28,17 +28,22 @@ analyze_github_health:
   description: >
     Analyze the GitHub repository for {technology}. 
     
-    IMPORTANT: First, find the exact repository name in "owner/repo" format.
+    IMPORTANT: First, identify the main/official repository in "owner/repo" format.
     For example: "facebook/react", "tiangolo/fastapi", "vercel/next.js"
     
-    Once you have the repository name, analyze it efficiently:
-    1. Use list_commits with owner, repo, and **perPage=10** (only 10 recent commits)
-    2. Use list_issues with owner, repo, state="OPEN", and **perPage=10** (only 10 open issues)
-    3. Use list_issues with owner, repo, state="CLOSED", and **perPage=10** (only 10 closed issues)
+    Then use these tools efficiently (ONE call per tool maximum):
+    1. Get GitHub Repository Info - Get basic repo metrics (stars, forks, activity)
+    2. List GitHub Commits - Check recent commits (last 10, to see activity)
+    3. List GitHub Issues - Check open issues (max 10, to assess maintenance)
+    
+    STRICT LIMITS:
+    - Maximum 3 tool calls total
+    - Do NOT make repeated calls with different parameters
+    - Use the data from these 3 calls to provide your analysis
     
     Based on this sample, provide:
-    - Summary of recent commit activity
-    - Ratio of open vs closed issues (approximate)
+    - Summary of recent commit activity (from commits)
+    - Open issues count and types (from issues)
     - Health score from 1-10
     - Brief assessment of project health
     
@@ -46,8 +51,9 @@ analyze_github_health:
   expected_output: >
     A concise GitHub health analysis (max 300 words) containing:
     - Repository name (owner/repo)
+    - Stars, forks, and main language
     - Recent commit activity summary
-    - Issue management summary (open/closed ratio)
+    - Open issues count and assessment
     - Health score (1-10) with brief justification
     - One-sentence overall assessment
   agent: github_analyst

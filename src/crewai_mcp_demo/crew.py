@@ -6,9 +6,15 @@ from dotenv import load_dotenv
 
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
-from crewai.mcp import MCPServerStdio, MCPServerHTTP
+from crewai.mcp import MCPServerHTTP
 from crewai.mcp.filters import create_static_tool_filter
 
+from crewai_mcp_demo.tools import (
+    GitHubRepoTool,
+    GitHubCommitsTool,
+    GitHubIssuesTool,
+    GitHubPullRequestsTool
+)
 
 # Load .env from project root
 env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
@@ -32,6 +38,7 @@ class CrewaiMcpDemo():
         print(f"🔍 Current directory: {os.getcwd()}")
         print(f"🔍 .env path: {env_path}")
         print(f"🔍 GOOGLE_SEARCH_MCP_KEY exists: {bool(os.getenv('GOOGLE_SEARCH_MCP_KEY'))}")
+        print(f"🔍 GITHUB_API_KEY exists: {bool(os.getenv('GITHUB_API_KEY'))}")
         
         # Load YAML configs for agents and tasks
         try:
@@ -54,6 +61,20 @@ class CrewaiMcpDemo():
         if not self.google_search_key:
             print("WARNING: GOOGLE_SEARCH_MCP_KEY not found. Google Search agent may not work.")
             self.google_search_key = ""
+        
+        # Get GitHub API key
+        self.github_api_key = os.getenv("GITHUB_API_KEY")
+        if not self.github_api_key:
+            print("WARNING: GITHUB_API_KEY not found. GitHub agent may not work.")
+            self.github_api_key = ""
+        
+        # Initialize GitHub tools
+        self.github_tools = [
+            GitHubRepoTool(),
+            GitHubCommitsTool(),
+            GitHubIssuesTool(),
+            GitHubPullRequestsTool()
+        ]
     
     @agent
     def technology_researcher(self) -> Agent:
@@ -81,31 +102,15 @@ class CrewaiMcpDemo():
     def github_analyst(self) -> Agent:
         return Agent(
             config=self.agents_config['github_analyst'],
-            mcps=[
-                # GitHub MCP via Docker Stdio
-                MCPServerStdio(
-                    command="docker",
-                    args=[
-                        "run",
-                        "-i",
-                        "--rm",
-                        "-e", f"GITHUB_PERSONAL_ACCESS_TOKEN={os.getenv('GITHUB_API_KEY')}",
-                        "mcp/github"
-                    ],
-                    tool_filter=create_static_tool_filter(
-                        allowed_tool_names=["get_repository", "list_commits", "list_issues"]
-                    ),
-                    cache_tools_list=True,
-                ),
-            ],
+            tools=self.github_tools,
             verbose=True,
             llm=self.llm_model,
             allow_delegation=False,
+            max_iter=3,
         )
     
     @agent
     def decision_advisor(self) -> Agent:
-        # ✅ ELIMINADO: Todo el código de filesystem y Docker
         return Agent(
             config=self.agents_config['decision_advisor'],
             verbose=True,
