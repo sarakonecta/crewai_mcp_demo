@@ -4,7 +4,7 @@ from typing import Any
 import yaml
 from dotenv import load_dotenv
 
-from crewai import Agent, Crew, Process, Task
+from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 from crewai.mcp import MCPServerHTTP
 from crewai.mcp.filters import create_static_tool_filter
@@ -54,7 +54,11 @@ class CrewaiMcpDemo():
             self.tasks_config = {}
             
         # Configure LLM model
-        self.llm_model = os.getenv("MODEL", "openai/gemini-2.5-flash")
+        self.llm_model = LLM(
+            model=os.getenv("MODEL", "openai/gemini-2.5-flash"),
+            api_key=os.getenv("OPENAI_API_KEY"),
+            api_base=os.getenv("OPENAI_API_BASE")
+        )
         
         # Get API keys from environment
         self.google_search_key = os.getenv("GOOGLE_SEARCH_MCP_KEY")
