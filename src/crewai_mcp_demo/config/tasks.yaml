@@ -1,29 +1,27 @@
 research_technology:
   description: >
-    Research {technology} thoroughly using web search. Your research should cover:
+    Research {technology} using web search. **LIMIT: Maximum 3 searches total.**
     
-    1. Official documentation and description
-    2. Real-world use cases and companies using it
-    3. Recent articles, blog posts, and discussions (from the last 6 months)
-    4. Comparisons with similar technologies/alternatives
-    5. General community sentiment and adoption trends
+    Prioritize your searches strategically:
+    1. First search: "{technology} overview documentation use cases 2025"
+    2. Second search: "{technology} vs alternatives comparison"
+    3. Third search: "{technology} adoption companies reviews"
     
-    Search for terms like:
-    - "{technology} documentation"
-    - "{technology} use cases"
-    - "{technology} vs alternatives"
-    - "{technology} reviews 2025"
-    - "companies using {technology}"
+    Focus on finding:
+    - Official documentation and main features
+    - Real-world use cases and companies using it
+    - Comparisons with alternatives
+    - Recent adoption trends and community sentiment
     
-    Provide a comprehensive summary with specific examples and sources.
+    Make each search count by using comprehensive search terms.
   expected_output: >
-    A detailed research report containing:
+    A concise research report containing:
     - Technology description and main features
-    - Key use cases with real examples
-    - Companies/projects using it
+    - Key use cases with 2-3 real examples
+    - Notable companies/projects using it
     - Comparison with 2-3 main alternatives
-    - Recent developments and trends
-    - Quality assessment of documentation
+    - Recent developments and community sentiment
+    - All information sourced from your 3 searches
   agent: technology_researcher
 
 analyze_github_health:

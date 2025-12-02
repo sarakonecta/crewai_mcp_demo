@@ -74,6 +74,7 @@ class CrewaiMcpDemo():
             verbose=True,
             llm=self.llm_model,
             allow_delegation=False,
+            max_iter=3,
         )
     
     @agent
