@@ -1,3 +1,19 @@
-.env
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Python
 __pycache__/
-.DS_Store
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo

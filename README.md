@@ -106,6 +106,22 @@ python main.py "Next.js 14"
 python main.py FastAPI
 ```
 
+### Streamlit App (`app.py`)
+
+A Streamlit frontend is included at the repository root as `app.py`. It provides a simple web UI where you can enter a technology name and run the CrewAI crew; the app will poll the Crew endpoint and display the crew's markdown output.
+
+To run the Streamlit app:
+
+```bash
+# Activate your virtual environment, then:
+streamlit run app.py
+```
+
+Configuration notes:
+- The app reads `CREW_URL` and `BEARER_TOKEN` from Streamlit secrets (e.g. `.streamlit/secrets.toml`) via `st.secrets`.
+- Ensure `CREW_URL` points to your deployed CrewAI endpoint and `BEARER_TOKEN` is set before running the app.
+
+
 ## Output
 
 The system generates a comprehensive evaluation including:
@@ -187,6 +203,7 @@ crewai_mcp_demo/
 │       │   └── github_tools.py      # GitHub native tools
 │       ├── crew.py                  # Main crew logic
 │       └── main.py                  # Entry point
+├── app.py                           # Streamlit frontend (Tech Stack Validator)
 ├── .env                             # Environment variables
 ├── pyproject.toml                   # Project dependencies
 └── README.md                        # This file
