@@ -8,6 +8,7 @@ dependencies = [
     "crewai-tools[mcp]>=1.4.1",
     "crewai[tools]==1.4.1",
     "mcp>=1.21.1",
+    "litellm>=1.0.0",
 ]
 
 [project.scripts]
